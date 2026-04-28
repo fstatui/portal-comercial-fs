@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Comercial · FS Tatuí</title>
+
+  <style>
+    /* ======= ESTILO ORIGINAL (INALTERADO) ======= */
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+    :root{
+      --bg:#0d0f14;
+      --surface:#13161d;
+      --surface2:#1a1e28;
+      --surface3:#222636;
+      --border:rgba(255,255,255,0.07);
+      --border2:rgba(255,255,255,0.12);
+      --text:#e8eaf0;
+      --text2:#8b90a0;
+      --text3:#565b6e;
+      --accent:#4f8ef7;
+      --accent2:#3a6fd4;
+      --green:#3ecf8e;
+      --red:#f56565;
+      --amber:#f6ad55;
+      --purple:#9f7aea;
+      --teal:#4fd1c5
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 28px;
+      height:56px;
+      background:var(--surface);
+      border-bottom:1px solid var(--border);
+      position:sticky;
+      top:0;
+      z-index:100
+    }
+
+    .header-left {
+      display:flex;
+      align-items:center;
+      gap:16px
+    }
+
+    .header-logo {
+      font-size:11px;
+      font-weight:600;
+      letter-spacing:.12em;
+      color:var(--text3);
+      text-transform:uppercase
+    }
+
+    .header-sep {
+      width:1px;
+      height:16px;
+      background:var(--border2)
+    }
+
+    .header-user {
+      font-size:13px;
+      color:var(--text2)
+    }
+
+    .btn-logout {
+      font-size:12px;
+      color:var(--text3);
+      background:none;
+      border:none;
+      cursor:pointer;
+      padding:6px 10px;
+      border-radius:6px
+    }
+
+    .btn-logout:hover {
+      color:var(--text);
+      background:var(--surface2)
+    }
+
+    .main {
+      padding:28px
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ======= HEADER ======= -->
+  <div class="header">
+    <div class="header-left">
+      <span class="header-logo">FS Tatuí</span>
+      <div class="header-sep"></div>
+      <span class="header-user" id="header-username">Carregando usuário…</span>
+    </div>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+  </div>
+
+  <!-- ======= CONTEÚDO ======= -->
+  <div class="main" id="portal-content" style="display:none;">
+    <h2>Portal Comercial</h2>
+    <p>Conteúdo do portal carregado com sucesso.</p>
+    <!-- Aqui entra TODO o resto do seu portal (tabelas, upload, KPIs, etc.) -->
+  </div>
+
+  <!-- ======= SCRIPT DE AUTENTICAÇÃO MICROSOFT ======= -->
+  <script>
+    async function getMicrosoftUser() {
+      const response = await fetch('/.auth/me');
+      const data = await response.json();
+      return data?.clientPrincipal || null;
+    }
+
+    function logout() {
+      window.location.href = '/.auth/logout';
+    }
+
+    (async function initAuth() {
+      const user = await getMicrosoftUser();
+
+      if (!user) {
+        // Não autenticado → login Microsoft
+        window.location.href = '/.auth/login/aad';
+        return;
+      }
+
+      const email = user.userDetails.toLowerCase();
+
+      // 🔒 BLOQUEIO POR DOMÍNIO
+      if (!email.endsWith('@fstatui.com.br')) {
+        document.body.innerHTML = `
+          <div style="padding:40px;font-family:Arial">
+            <h2 style="color:#f56565">Acesso não autorizado</h2>
+            <p>Este portal é exclusivo para usuários da FS Tatuí.</p>
+            <p><strong>Usuário:</strong> ${email}</p>
+          </div>
+        `;
+        return;
+      }
+
+      // ✅ Usuário autorizado
+      document.getElementById('header-username').innerText = email;
+      document.getElementById('portal-content').style.display = 'block';
+    })();
+  </script>
+
+</body>
+</html>
+``
