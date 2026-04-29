@@ -6,75 +6,148 @@
 <title>Portal Comercial · FS Tatuí</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-  :root{--bg:#0d0f14;--surface:#13161d;--surface2:#1a1e28;--surface3:#222636;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#e8eaf0;--text2:#8b90a0;--text3:#565b6e;--accent:#4f8ef7;--accent2:#3a6fd4;--green:#3ecf8e;--red:#f56565;--amber:#f6ad55;--purple:#9f7aea;--teal:#4fd1c5}
+  :root{
+    --bg:#1a1a1a;
+    --surface:#222222;
+    --surface2:#2a2a2a;
+    --surface3:#333333;
+    --border:rgba(255,255,255,0.07);
+    --border2:rgba(255,255,255,0.12);
+    --text:#e8e8e8;
+    --text2:#999999;
+    --text3:#666666;
+    --accent:#8B722C;
+    --accent2:#544510;
+    --accent-light:#B8944A;
+    --gold:#8B722C;
+    --gold-light:#B8944A;
+    --gold-dark:#544510;
+    --green:#3ecf8e;
+    --red:#f56565;
+    --amber:#f6ad55;
+    --purple:#9f7aea;
+    --teal:#4fd1c5;
+    --cream:#E3DBCA;
+  }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
   /* LOADING */
-  #loading-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
-  .spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+  #loading-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:var(--bg)}
+  .spinner{width:36px;height:36px;border:3px solid rgba(139,114,44,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
   #loading-screen p{font-size:13px;color:var(--text3)}
+  .loading-logo{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .loading-logo svg{width:40px;height:40px}
+  .loading-logo span{font-size:18px;font-weight:600;letter-spacing:.06em;color:var(--gold)}
 
   /* ACESSO NEGADO */
-  #denied-screen{min-height:100vh;display:none;align-items:center;justify-content:center}
+  #denied-screen{min-height:100vh;display:none;align-items:center;justify-content:center;background:var(--bg)}
   .denied-box{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:40px;text-align:center;max-width:420px}
   .denied-box h2{color:var(--red);margin-bottom:12px}
   .denied-box p{color:var(--text2);font-size:14px;line-height:1.6;margin-bottom:8px}
-  .denied-box .btn-logout2{margin-top:20px;padding:10px 24px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text2);cursor:pointer;font-family:inherit;font-size:13px}
+  .denied-box .btn-secondary{margin-top:20px;padding:10px 24px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text2);cursor:pointer;font-family:inherit;font-size:13px}
 
   /* PORTAL */
   #portal-screen{display:none;flex-direction:column;min-height:100vh}
-  .header{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+
+  /* HEADER */
+  .header{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;
+    background:var(--surface);border-bottom:2px solid var(--gold-dark);position:sticky;top:0;z-index:100}
   .header-left{display:flex;align-items:center;gap:16px}
-  .header-logo{font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--text3);text-transform:uppercase}
-  .header-sep{width:1px;height:16px;background:var(--border2)}
+  .header-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+  .header-logo-icon{width:32px;height:32px}
+  .header-logo-text{display:flex;flex-direction:column;line-height:1}
+  .header-logo-main{font-size:14px;font-weight:700;letter-spacing:.1em;color:var(--gold-light);text-transform:uppercase}
+  .header-logo-sub{font-size:9px;font-weight:400;letter-spacing:.15em;color:var(--text3);text-transform:uppercase}
+  .header-sep{width:1px;height:20px;background:var(--border2)}
   .header-user{font-size:13px;color:var(--text2)}
-  .badge-admin{font-size:10px;font-weight:600;letter-spacing:.08em;background:rgba(159,122,234,.15);color:var(--purple);border:1px solid rgba(159,122,234,.25);border-radius:4px;padding:2px 7px;text-transform:uppercase}
-  .btn-logout{font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:6px;transition:color .2s,background .2s}
-  .btn-logout:hover{color:var(--text);background:var(--surface2)}
-  .ua-bar{display:flex;align-items:center;gap:10px;padding:10px 28px;background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap}
+  .badge-admin{font-size:10px;font-weight:600;letter-spacing:.08em;background:rgba(139,114,44,.2);
+    color:var(--gold-light);border:1px solid rgba(139,114,44,.4);border-radius:4px;padding:2px 8px;text-transform:uppercase}
+  .btn-logout{font-size:12px;color:var(--text3);background:none;border:1px solid var(--border2);
+    cursor:pointer;padding:6px 14px;border-radius:6px;transition:all .2s;font-family:inherit}
+  .btn-logout:hover{color:var(--text);border-color:var(--gold);background:rgba(139,114,44,.1)}
+
+  /* ADMIN GERENTE SELECTOR */
+  .admin-bar{display:flex;align-items:center;gap:12px;padding:10px 28px;
+    background:rgba(139,114,44,.08);border-bottom:1px solid rgba(139,114,44,.2);flex-wrap:wrap}
+  .admin-bar-label{font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;white-space:nowrap}
+  .admin-gerente-select{background:var(--surface2);border:1px solid rgba(139,114,44,.3);border-radius:6px;
+    color:var(--text);font-family:inherit;font-size:13px;padding:6px 12px;outline:none;
+    appearance:none;-webkit-appearance:none;cursor:pointer;min-width:220px;transition:border-color .2s}
+  .admin-gerente-select:focus{border-color:var(--gold)}
+  .admin-bar-info{font-size:12px;color:var(--text3)}
+  .admin-bar-info strong{color:var(--gold-light)}
+
+  /* UNIDADE BAR */
+  .ua-bar{display:flex;align-items:center;gap:10px;padding:10px 28px;
+    background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap}
   .ua-label{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;white-space:nowrap}
-  .ua-btn{padding:5px 14px;font-size:12px;font-weight:500;border-radius:6px;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text2);font-family:inherit;transition:all .15s;white-space:nowrap}
-  .ua-btn:hover{border-color:var(--accent);color:var(--accent)}
-  .ua-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .ua-btn{padding:5px 14px;font-size:12px;font-weight:500;border-radius:6px;cursor:pointer;
+    border:1px solid var(--border2);background:transparent;color:var(--text2);font-family:inherit;
+    transition:all .15s;white-space:nowrap}
+  .ua-btn:hover{border-color:var(--gold);color:var(--gold-light)}
+  .ua-btn.active{background:var(--gold);border-color:var(--gold);color:#1a1a1a;font-weight:600}
+
+  /* TABS */
   .nav-tabs{display:flex;gap:2px;padding:0 28px;background:var(--surface);border-bottom:1px solid var(--border)}
-  .nav-tab{padding:12px 16px;font-size:13px;color:var(--text3);border:none;background:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
-  .nav-tab:hover{color:var(--text2)}.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .nav-tab{padding:13px 18px;font-size:13px;color:var(--text3);border:none;background:none;
+    cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+  .nav-tab:hover{color:var(--text2)}
+  .nav-tab.active{color:var(--gold-light);border-bottom-color:var(--gold)}
+
   .main{flex:1;padding:24px 28px}
+
+  /* UPLOAD */
   .upload-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px}
-  .upload-section h3{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;letter-spacing:.04em}
+  .upload-section h3{font-size:12px;font-weight:600;color:var(--gold);margin-bottom:8px;letter-spacing:.1em;text-transform:uppercase}
   .upload-section p{font-size:12px;color:var(--text3);margin-bottom:16px}
-  .upload-drop{border:2px dashed var(--border2);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
-  .upload-drop:hover,.upload-drop.drag-over{border-color:var(--accent);background:rgba(79,142,247,.04)}
+  .upload-drop{border:2px dashed rgba(139,114,44,.3);border-radius:10px;padding:28px;text-align:center;
+    cursor:pointer;transition:border-color .2s,background .2s}
+  .upload-drop:hover,.upload-drop.drag-over{border-color:var(--gold);background:rgba(139,114,44,.05)}
   .upload-drop p{font-size:13px;color:var(--text3);margin-top:8px;margin-bottom:0}
   .upload-drop .icon{font-size:28px;margin-bottom:4px}
   #file-input{display:none}
   .upload-files-list{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
   .file-chip{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:12px}
   .fc-ok{color:var(--green)}.fc-warn{color:var(--amber)}
-  .btn-process{margin-top:14px;padding:10px 22px;background:var(--green);border:none;border-radius:8px;color:#0d1810;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .2s}
-  .btn-process:hover{opacity:.88}.btn-process:disabled{opacity:.4;cursor:not-allowed}
+  .btn-process{margin-top:14px;padding:10px 22px;background:var(--gold);border:none;border-radius:8px;
+    color:#1a1a1a;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s,background .2s}
+  .btn-process:hover{background:var(--gold-light)}.btn-process:disabled{opacity:.4;cursor:not-allowed}
   .process-status{font-size:12px;color:var(--text2);margin-top:10px}
-  .filters-bar{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
+
+  /* FILTERS */
+  .filters-bar{display:flex;align-items:center;gap:12px;background:var(--surface);
+    border:1px solid var(--border);border-radius:10px;padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
   .filters-bar label{font-size:12px;color:var(--text3)}
-  .filters-bar input[type="date"]{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:inherit;font-size:13px;padding:7px 11px;outline:none}
+  .filters-bar input[type="date"]{background:var(--surface2);border:1px solid var(--border2);
+    border-radius:6px;color:var(--text);font-family:inherit;font-size:13px;padding:7px 11px;outline:none}
   .filters-bar input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.5)}
   .filter-sep{width:1px;height:20px;background:var(--border)}
-  .btn-filter{padding:7px 16px;background:var(--accent);border:none;border-radius:6px;color:#fff;font-family:inherit;font-size:13px;cursor:pointer;transition:background .2s}
-  .btn-filter:hover{background:var(--accent2)}
-  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px}
-  .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
-  .kpi-label{font-size:11px;color:var(--text3);font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+  .btn-filter{padding:7px 16px;background:var(--gold);border:none;border-radius:6px;color:#1a1a1a;
+    font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s}
+  .btn-filter:hover{background:var(--gold-light)}
+
+  /* KPI */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:20px}
+  .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;border-left:3px solid var(--border2)}
+  .kpi-label{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
   .kpi-value{font-size:22px;font-weight:500;font-family:'DM Mono',monospace}
   .kpi-sub{font-size:11px;color:var(--text3);margin-top:4px}
-  .kpi-green .kpi-value{color:var(--green)}.kpi-red .kpi-value{color:var(--red)}.kpi-amber .kpi-value{color:var(--amber)}.kpi-blue .kpi-value{color:var(--accent)}
+  .kpi-gold{border-left-color:var(--gold)}.kpi-gold .kpi-value{color:var(--gold-light)}
+  .kpi-green{border-left-color:var(--green)}.kpi-green .kpi-value{color:var(--green)}
+  .kpi-red{border-left-color:var(--red)}.kpi-red .kpi-value{color:var(--red)}
+  .kpi-amber{border-left-color:var(--amber)}.kpi-amber .kpi-value{color:var(--amber)}
+
+  /* TABLE */
   .table-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
-  .table-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
-  .table-header h3{font-size:13px;font-weight:500}.table-header span{font-size:12px;color:var(--text3)}
+  .table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
+  .table-header h3{font-size:12px;font-weight:600;color:var(--gold-light);letter-spacing:.06em;text-transform:uppercase}
+  .table-header span{font-size:12px;color:var(--text3)}
   .table-wrap{overflow-x:auto}
   table{width:100%;border-collapse:collapse;font-size:12.5px}
-  thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap;text-transform:uppercase}
+  thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:600;letter-spacing:.08em;
+    color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap;text-transform:uppercase;background:rgba(0,0,0,.15)}
   tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
   tbody tr:last-child{border-bottom:none}
   tbody tr:hover{background:var(--surface2)}
@@ -82,18 +155,34 @@
   tbody td.td-main{color:var(--text);font-weight:500;max-width:240px;overflow:hidden;text-overflow:ellipsis}
   tbody td.td-mono{font-family:'DM Mono',monospace;font-size:12px}
   .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
-  .badge-green{background:rgba(62,207,142,.12);color:var(--green)}.badge-red{background:rgba(245,101,101,.12);color:var(--red)}
-  .badge-amber{background:rgba(246,173,85,.12);color:var(--amber)}.badge-blue{background:rgba(79,142,247,.12);color:var(--accent)}
-  .badge-gray{background:rgba(255,255,255,.06);color:var(--text3)}.badge-ua{background:rgba(79,209,197,.1);color:var(--teal);font-size:10px;padding:1px 6px}
+  .badge-green{background:rgba(62,207,142,.12);color:var(--green)}
+  .badge-red{background:rgba(245,101,101,.12);color:var(--red)}
+  .badge-amber{background:rgba(246,173,85,.12);color:var(--amber)}
+  .badge-gold{background:rgba(139,114,44,.15);color:var(--gold-light)}
+  .badge-gray{background:rgba(255,255,255,.06);color:var(--text3)}
+  .badge-ua{background:rgba(139,114,44,.12);color:var(--gold-light);font-size:10px;padding:1px 6px;letter-spacing:.04em}
+
   .tab-panel{display:none}.tab-panel.active{display:block}
   .data-date{font-size:11px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px}
-  ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--gold-dark)}
 </style>
 </head>
 <body>
 
 <!-- LOADING -->
 <div id="loading-screen">
+  <div class="loading-logo">
+    <!-- Logo FS Tatuí SVG inline -->
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="20,2 38,12 38,28 20,38 2,28 2,12" fill="#544510" stroke="#8B722C" stroke-width="1.5"/>
+      <text x="20" y="25" text-anchor="middle" font-family="serif" font-size="14" font-weight="bold" fill="#B8944A">FS</text>
+    </svg>
+    <span>FS TATUÍ</span>
+  </div>
   <div class="spinner"></div>
   <p>Verificando autenticação…</p>
 </div>
@@ -103,16 +192,27 @@
   <div class="denied-box">
     <h2>Acesso não autorizado</h2>
     <p>Este portal é exclusivo para usuários da FS Tatuí.</p>
-    <p id="denied-email" style="color:var(--text3);font-size:12px"></p>
-    <button class="btn-logout2" onclick="logout()">Sair</button>
+    <p id="denied-email" style="color:var(--text3);font-size:12px;margin-top:8px"></p>
+    <button class="btn-secondary" onclick="logout()">Sair</button>
   </div>
 </div>
 
 <!-- PORTAL -->
 <div id="portal-screen">
+
+  <!-- HEADER -->
   <div class="header">
     <div class="header-left">
-      <span class="header-logo">FS Tatuí</span>
+      <div class="header-logo">
+        <svg class="header-logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="16,1 31,9 31,23 16,31 1,23 1,9" fill="#544510" stroke="#8B722C" stroke-width="1.2"/>
+          <text x="16" y="21" text-anchor="middle" font-family="serif" font-size="11" font-weight="bold" fill="#B8944A">FS</text>
+        </svg>
+        <div class="header-logo-text">
+          <span class="header-logo-main">FS Tatuí</span>
+          <span class="header-logo-sub">Financeira</span>
+        </div>
+      </div>
       <div class="header-sep"></div>
       <span class="header-user" id="header-username"></span>
       <span class="badge-admin" id="badge-admin" style="display:none">Admin</span>
@@ -123,6 +223,30 @@
     </div>
   </div>
 
+  <!-- SELETOR DE GERENTE (somente admin) -->
+  <div class="admin-bar" id="admin-bar" style="display:none">
+    <span class="admin-bar-label">👁 Visualizando como:</span>
+    <select class="admin-gerente-select" id="admin-gerente-select" onchange="onAdminGerenteChange()">
+      <option value="__todos__">— Todos os gerentes (visão geral) —</option>
+      <optgroup label="Agentes Comerciais">
+        <option value="Adriana Fonseca">Adriana Fonseca (+ Comercial 02)</option>
+        <option value="Adriana Ondei">Adriana Ondei</option>
+        <option value="Adriano Santin">Adriano Santin</option>
+        <option value="Benedito Rocha">Benedito Rocha</option>
+        <option value="Carlos Duarte">Carlos Duarte</option>
+        <option value="Fernando Kruppa">Fernando Kruppa</option>
+        <option value="Freiser Freitas">Freiser Freitas</option>
+        <option value="Jorge Brunheira">Jorge Brunheira</option>
+        <option value="Junior Gonçalves">Junior Gonçalves (+ Comercial 01)</option>
+        <option value="Lanael Junior">Lanael Junior</option>
+        <option value="Reinaldo Andrade">Reinaldo Andrade</option>
+        <option value="Renato Rosa">Renato Rosa</option>
+      </optgroup>
+    </select>
+    <span class="admin-bar-info" id="admin-bar-info"></span>
+  </div>
+
+  <!-- FILTRO UNIDADE -->
   <div class="ua-bar">
     <span class="ua-label">Unidade:</span>
     <button class="ua-btn active" onclick="setUA('Todas',this)">Todas</button>
@@ -132,6 +256,7 @@
     <button class="ua-btn" onclick="setUA('FS Tatui Factoring',this)">Factoring</button>
   </div>
 
+  <!-- TABS -->
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="switchTab('carteira',this)">Carteira</button>
     <button class="nav-tab" onclick="switchTab('operacoes',this)">Operações</button>
@@ -142,10 +267,10 @@
 
   <div class="main">
 
-    <!-- UPLOAD (admin) -->
+    <!-- UPLOAD -->
     <div class="tab-panel" id="tab-admin">
       <div class="upload-section">
-        <h3>CARREGAR ARQUIVOS CSV</h3>
+        <h3>Carregar Arquivos CSV</h3>
         <p>Selecione todos os CSVs de todas as unidades de uma vez. O portal identifica a unidade automaticamente pelo nome do arquivo.</p>
         <div class="upload-drop" id="drop-zone" onclick="document.getElementById('file-input').click()">
           <div class="icon">📂</div>
@@ -227,7 +352,7 @@
       </div>
       <div class="table-section" style="margin-top:16px">
         <div class="table-header"><h3>Prorrogações</h3><span id="prorr-count"></span></div>
-        <div class="table-wrap"><table><thead><tr><th>Data</th><th>Cedente</th><th>Unidade</th><th>Produto</th>><th>Título</th><th>Venc. Atual</th><th>Novo Venc.</th><th>Dias</th><th>Custo Total</th></tr></thead><tbody id="tbody-prorrogacoes"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>Data</th><th>Cedente</th><th>Unidade</th><th>Título</th><th>Venc. Atual</th><th>Novo Venc.</th><th>Dias</th><th>Custo Total</th></tr></thead><tbody id="tbody-prorrogacoes"></tbody></table></div>
       </div>
     </div>
 
@@ -239,87 +364,46 @@
 // MAPEAMENTO E-MAIL → PERFIL
 // ══════════════════════════════════════════
 const EMAIL_MAP = {
-  // ADMIN
-  'jose.rocha@fstatui.com.br':      { nome: 'José Rocha',        gerentes: null, isAdmin: true },
+  'jose.rocha@fstatui.com.br':      { nome:'José Rocha',       gerentes:null, isAdmin:true },
+  'adriana.ondei@fstatui.com.br':   { nome:'Adriana Ondei',    gerentes:['Adriana Ondei'] },
+  'adriano@fstatui.com.br':         { nome:'Adriano Santin',   gerentes:['Adriano Santin'] },
+  'rocha@fstatui.com.br':           { nome:'Benedito Rocha',   gerentes:['Benedito Rocha'] },
+  'carlos.duarte@fstatui.com.br':   { nome:'Carlos Duarte',    gerentes:['Carlos Duarte'] },
+  'fernando.kruppa@fstatui.com.br': { nome:'Fernando Kruppa',  gerentes:['Fernando Kruppa'] },
+  'freiser@fstatui.com.br':         { nome:'Freiser Freitas',  gerentes:['Freiser Freitas'] },
+  'jorgebrunheira@fstatui.com.br':  { nome:'Jorge Brunheira',  gerentes:['Jorge Brunheira'] },
+  'junior@fstatui.com.br':          { nome:'Junior Gonçalves', gerentes:['Junior Gonçalves','Comercial 01'] },
+  'adriana@fstatui.com.br':         { nome:'Adriana Fonseca',  gerentes:['Adriana Fonseca','Comercial 02'] },
+  'lanael@fstatui.com.br':          { nome:'Lanael Junior',    gerentes:['Lanael Junior'] },
+  'reinaldo.fiuza@fstatui.com.br':  { nome:'Reinaldo Andrade', gerentes:['Reinaldo Andrade'] },
+  'renato.luis@fstatui.com.br':     { nome:'Renato Rosa',      gerentes:['Renato Rosa'] },
+};
 
-  // AGENTES COMERCIAIS
-  'adriana.ondei@fstatui.com.br':   { nome: 'Adriana Ondei',     gerentes: ['Adriana Ondei'] },
-  'adriano@fstatui.com.br':         { nome: 'Adriano Santin',    gerentes: ['Adriano Santin'] },
-  'rocha@fstatui.com.br':           { nome: 'Benedito Rocha',    gerentes: ['Benedito Rocha'] },
-  'carlos.duarte@fstatui.com.br':   { nome: 'Carlos Duarte',     gerentes: ['Carlos Duarte'] },
-  'fernando.kruppa@fstatui.com.br': { nome: 'Fernando Kruppa',   gerentes: ['Fernando Kruppa'] },
-  'freiser@fstatui.com.br':         { nome: 'Freiser Freitas',   gerentes: ['Freiser Freitas'] },
-  'jorgebrunheira@fstatui.com.br':  { nome: 'Jorge Brunheira',   gerentes: ['Jorge Brunheira'] },
-  'junior@fstatui.com.br':          { nome: 'Junior Gonçalves',  gerentes: ['Junior Gonçalves', 'Comercial 01'] },
-  'adriana@fstatui.com.br':         { nome: 'Adriana Fonseca',   gerentes: ['Adriana Fonseca', 'Comercial 02'] },
-  'lanael@fstatui.com.br':          { nome: 'Lanael Junior',     gerentes: ['Lanael Junior'] },
-  'reinaldo.fiuza@fstatui.com.br':  { nome: 'Reinaldo Andrade',  gerentes: ['Reinaldo Andrade'] },
-  'renato.luis@fstatui.com.br':     { nome: 'Renato Rosa',       gerentes: ['Renato Rosa'] },
+// Mapa gerente → gerentes no CSV (para o seletor admin)
+const GERENTE_CSV_MAP = {
+  'Adriana Fonseca':  ['Adriana Fonseca','Comercial 02'],
+  'Adriana Ondei':    ['Adriana Ondei'],
+  'Adriano Santin':   ['Adriano Santin'],
+  'Benedito Rocha':   ['Benedito Rocha'],
+  'Carlos Duarte':    ['Carlos Duarte'],
+  'Fernando Kruppa':  ['Fernando Kruppa'],
+  'Freiser Freitas':  ['Freiser Freitas'],
+  'Jorge Brunheira':  ['Jorge Brunheira'],
+  'Junior Gonçalves': ['Junior Gonçalves','Comercial 01'],
+  'Lanael Junior':    ['Lanael Junior'],
+  'Reinaldo Andrade': ['Reinaldo Andrade'],
+  'Renato Rosa':      ['Renato Rosa'],
 };
 
 // ══════════════════════════════════════════
-// AUTENTICAÇÃO MICROSOFT
+// ESTADO GLOBAL
 // ══════════════════════════════════════════
-let currentUser = null;
+let currentUser   = null;
+let currentUA     = 'Todas';
+let currentTab    = 'carteira';
+let adminViewAs   = '__todos__'; // seletor do admin
+let pendingFiles  = {};
 
-async function getMicrosoftUser() {
-  try {
-    const res = await fetch('/.auth/me');
-    const data = await res.json();
-    return data?.clientPrincipal || null;
-  } catch(e) { return null; }
-}
-
-function logout() {
-  window.location.href = '/.auth/logout';
-}
-
-(async function initAuth() {
-  const msUser = await getMicrosoftUser();
-
-  if (!msUser) {
-    window.location.href = '/.auth/login/aad';
-    return;
-  }
-
-  const email = (msUser.userDetails || '').toLowerCase().trim();
-
-  // Verifica domínio
-  if (!email.endsWith('@fstatui.com.br')) {
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('denied-screen').style.display = 'flex';
-    document.getElementById('denied-email').textContent = email;
-    return;
-  }
-
-  // Verifica se e-mail está mapeado
-  const perfil = EMAIL_MAP[email];
-  if (!perfil) {
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('denied-screen').style.display = 'flex';
-    document.getElementById('denied-email').textContent = `${email} — acesso ainda não configurado. Entre em contato com o administrador.`;
-    return;
-  }
-
-  // Usuário autorizado
-  currentUser = { email, ...perfil };
-  document.getElementById('loading-screen').style.display = 'none';
-  document.getElementById('portal-screen').style.display = 'flex';
-  document.getElementById('header-username').textContent = perfil.nome;
-
-  if (perfil.isAdmin) {
-    document.getElementById('badge-admin').style.display = 'inline-block';
-    document.getElementById('tab-admin-btn').style.display = 'inline-block';
-  }
-
-  loadData();
-  updateDataLabel();
-  renderCurrentTab();
-})();
-
-// ══════════════════════════════════════════
-// BANCO DE DADOS LOCAL (sessionStorage)
-// ══════════════════════════════════════════
 const UA_PREFIXES = {
   'fs tatui securit.':         'FS Tatui Securit.',
   'fs tatui fidc':             'FS Tatui FIDC',
@@ -327,192 +411,253 @@ const UA_PREFIXES = {
   'fs tatui factoring':        'FS Tatui Factoring'
 };
 const UA_NAMES = Object.values(UA_PREFIXES);
-const TIPO_LABELS = {carteira:'Carteira',operacoes:'Operações',titulosAberto:'Títulos em Aberto',titulosVencidos:'Títulos Vencidos',liquidacoes:'Liquidações',recompras:'Recompras',prorrogacoes:'Prorrogações'};
-
-let currentUA  = 'Todas';
-let currentTab = 'carteira';
-let pendingFiles = {};
+const TIPO_LABELS = {
+  carteira:'Carteira', operacoes:'Operações', titulosAberto:'Títulos em Aberto',
+  titulosVencidos:'Títulos Vencidos', liquidacoes:'Liquidações',
+  recompras:'Recompras', prorrogacoes:'Prorrogações'
+};
 
 function makeEmptyDB() {
   const db = {};
-  UA_NAMES.forEach(ua => { db[ua] = {carteira:[],operacoes:[],titulosAberto:[],titulosVencidos:[],liquidacoes:[],recompras:[],prorrogacoes:[]} });
+  UA_NAMES.forEach(ua => { db[ua]={carteira:[],operacoes:[],titulosAberto:[],titulosVencidos:[],liquidacoes:[],recompras:[],prorrogacoes:[]}; });
   return db;
 }
 let DB = makeEmptyDB();
+function saveData(){ try{ sessionStorage.setItem('fidc_db5',JSON.stringify(DB)); }catch(e){} }
+function loadData(){ try{ const s=sessionStorage.getItem('fidc_db5'); if(s) DB=JSON.parse(s); }catch(e){} }
 
-function saveData() { try { sessionStorage.setItem('fidc_db4', JSON.stringify(DB)); } catch(e){} }
-function loadData() { try { const s = sessionStorage.getItem('fidc_db4'); if(s) DB = JSON.parse(s); } catch(e){} }
+// ══════════════════════════════════════════
+// AUTENTICAÇÃO
+// ══════════════════════════════════════════
+async function getMicrosoftUser(){
+  try{ const r=await fetch('/.auth/me'); const d=await r.json(); return d?.clientPrincipal||null; }catch(e){ return null; }
+}
+function logout(){ window.location.href='/.auth/logout'; }
+
+(async function initAuth(){
+  const msUser = await getMicrosoftUser();
+  if(!msUser){ window.location.href='/.auth/login/aad'; return; }
+  const email = (msUser.userDetails||'').toLowerCase().trim();
+  if(!email.endsWith('@fstatui.com.br')){
+    document.getElementById('loading-screen').style.display='none';
+    document.getElementById('denied-screen').style.display='flex';
+    document.getElementById('denied-email').textContent=email;
+    return;
+  }
+  const perfil = EMAIL_MAP[email];
+  if(!perfil){
+    document.getElementById('loading-screen').style.display='none';
+    document.getElementById('denied-screen').style.display='flex';
+    document.getElementById('denied-email').textContent=`${email} — acesso ainda não configurado. Entre em contato com o administrador.`;
+    return;
+  }
+  currentUser = { email, ...perfil };
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('portal-screen').style.display='flex';
+  document.getElementById('header-username').textContent=perfil.nome;
+  if(perfil.isAdmin){
+    document.getElementById('badge-admin').style.display='inline-block';
+    document.getElementById('tab-admin-btn').style.display='inline-block';
+    document.getElementById('admin-bar').style.display='flex';
+    updateAdminBarInfo();
+  }
+  loadData(); updateDataLabel(); renderCurrentTab();
+})();
+
+// ══════════════════════════════════════════
+// SELETOR ADMIN
+// ══════════════════════════════════════════
+function onAdminGerenteChange(){
+  adminViewAs = document.getElementById('admin-gerente-select').value;
+  updateAdminBarInfo();
+  renderCurrentTab();
+}
+function updateAdminBarInfo(){
+  const info = document.getElementById('admin-bar-info');
+  if(adminViewAs === '__todos__'){
+    info.innerHTML = 'Exibindo <strong>todos os gerentes</strong>';
+  } else {
+    const csvGs = GERENTE_CSV_MAP[adminViewAs] || [adminViewAs];
+    info.innerHTML = `Exibindo carteira de <strong>${adminViewAs}</strong> ${csvGs.length>1?'('+csvGs.join(', ')+')':''}`;
+  }
+}
+
+// Retorna os gerentes ativos para filtragem
+function getGerentesAtivos(){
+  if(!currentUser) return null;
+  if(currentUser.isAdmin){
+    if(adminViewAs === '__todos__') return null; // null = todos
+    return GERENTE_CSV_MAP[adminViewAs] || [adminViewAs];
+  }
+  return currentUser.gerentes;
+}
 
 // ══════════════════════════════════════════
 // NAVEGAÇÃO
 // ══════════════════════════════════════════
-function setUA(ua, btn) {
-  currentUA = ua;
-  document.querySelectorAll('.ua-btn').forEach(b => b.classList.remove('active'));
+function setUA(ua,btn){
+  currentUA=ua;
+  document.querySelectorAll('.ua-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderCurrentTab();
 }
-function switchTab(tab, btn) {
-  currentTab = tab;
-  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+function switchTab(tab,btn){
+  currentTab=tab;
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
   renderCurrentTab();
 }
-function renderCurrentTab() {
-  if (currentTab === 'carteira')      renderCarteira();
-  else if (currentTab === 'operacoes')     renderOperacoes();
-  else if (currentTab === 'inadimplencia') renderInadimplencia();
-  else if (currentTab === 'movimentacoes') renderMovimentacoes();
+function renderCurrentTab(){
+  if(currentTab==='carteira')      renderCarteira();
+  else if(currentTab==='operacoes')     renderOperacoes();
+  else if(currentTab==='inadimplencia') renderInadimplencia();
+  else if(currentTab==='movimentacoes') renderMovimentacoes();
 }
 
 // ══════════════════════════════════════════
 // HELPERS
 // ══════════════════════════════════════════
-function getRows(tipo) {
-  if (currentUA === 'Todas') return UA_NAMES.flatMap(ua => (DB[ua]?.[tipo]||[]).map(r => ({...r, __ua: ua})));
-  return (DB[currentUA]?.[tipo]||[]).map(r => ({...r, __ua: currentUA}));
+function getRows(tipo){
+  if(currentUA==='Todas') return UA_NAMES.flatMap(ua=>(DB[ua]?.[tipo]||[]).map(r=>({...r,__ua:ua})));
+  return (DB[currentUA]?.[tipo]||[]).map(r=>({...r,__ua:currentUA}));
 }
-function byGerente(rows) {
-  if (!currentUser || currentUser.isAdmin) return rows;
-  const gs = currentUser.gerentes.map(g => g.toLowerCase());
-  return rows.filter(r => gs.includes((r['GERENTE']||'').toLowerCase().trim()));
+function byGerente(rows){
+  const gs = getGerentesAtivos();
+  if(!gs) return rows;
+  const gsLow = gs.map(g=>g.toLowerCase());
+  return rows.filter(r=>gsLow.includes((r['GERENTE']||'').toLowerCase().trim()));
 }
-function byDate(rows, field, de, ate) {
-  if (!de && !ate) return rows;
-  const d1 = de ? new Date(de) : null, d2 = ate ? new Date(ate) : null;
-  return rows.filter(r => {
-    const d = parseDate(r[field]); if (!d) return true;
-    if (d1 && d < d1) return false;
-    if (d2 && d > d2) return false;
-    return true;
+function byDate(rows,field,de,ate){
+  if(!de&&!ate) return rows;
+  const d1=de?new Date(de):null, d2=ate?new Date(ate):null;
+  return rows.filter(r=>{
+    const d=parseDate(r[field]); if(!d) return true;
+    if(d1&&d<d1) return false; if(d2&&d>d2) return false; return true;
   });
 }
-function parseCSV(text) {
-  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
-  if (lines.length < 2) return [];
-  const headers = lines[0].split(';').map(h => h.trim().replace(/^"|"$/g,''));
-  return lines.slice(1).map(line => {
-    const cols = line.split(';'), row = {};
-    headers.forEach((h,i) => { row[h] = (cols[i]||'').trim().replace(/^"|"$/g,'').replace(/^="(.+)"$/,'$1'); });
+function parseCSV(text){
+  const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
+  if(lines.length<2) return [];
+  const headers=lines[0].split(';').map(h=>h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line=>{
+    const cols=line.split(';'),row={};
+    headers.forEach((h,i)=>{row[h]=(cols[i]||'').trim().replace(/^"|"$/g,'').replace(/^="(.+)"$/,'$1')});
     return row;
-  }).filter(r => Object.values(r).some(v => v));
+  }).filter(r=>Object.values(r).some(v=>v));
 }
-function parseBRL(s) { if(!s) return 0; return parseFloat(s.replace(/\./g,'').replace(',','.'))||0; }
-function fmtBRL(n) { return 'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function parseDate(s) { if(!s) return null; const p=s.split('/'); return p.length===3?new Date(+p[2],+p[1]-1,+p[0]):new Date(s); }
-function toInputDate(d) { return d.toISOString().slice(0,10); }
-function uaBadge(ua) { const s=ua.replace('FS Tatui ','').replace('Capital Securit.','Cap.Sec').replace('Securit.','Securit'); return `<span class="badge badge-ua">${s}</span>`; }
-function emptyRow(c) {
-  const msg = UA_NAMES.every(ua=>Object.values(DB[ua]).every(a=>!a.length)) ? 'Aguardando upload dos arquivos.' : 'Nenhum dado para os filtros selecionados.';
+function parseBRL(s){ if(!s) return 0; return parseFloat(s.replace(/\./g,'').replace(',','.'))||0; }
+function fmtBRL(n){ return 'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function parseDate(s){ if(!s) return null; const p=s.split('/'); return p.length===3?new Date(+p[2],+p[1]-1,+p[0]):new Date(s); }
+function toInputDate(d){ return d.toISOString().slice(0,10); }
+function uaBadge(ua){ const s=ua.replace('FS Tatui ','').replace('Capital Securit.','Cap.Sec').replace('Securit.','Securit'); return `<span class="badge badge-ua">${s}</span>`; }
+function emptyRow(c){
+  const msg=UA_NAMES.every(ua=>Object.values(DB[ua]).every(a=>!a.length))?'Aguardando upload dos arquivos.':'Nenhum dado para os filtros selecionados.';
   return `<tr><td colspan="${c}" style="text-align:center;padding:40px;color:var(--text3);font-size:13px">${msg}</td></tr>`;
 }
-function identifyFile(fn) {
-  const f = fn.toLowerCase(); let ua = null;
-  for (const [pfx,name] of Object.entries(UA_PREFIXES)) { if(f.startsWith(pfx)){ua=name;break} }
-  if (!ua) return {ua:null,tipo:null};
-  let tipo = null;
-  if (f.includes('carteira')) tipo='carteira';
-  else if (f.includes('operacoes')) tipo='operacoes';
-  else if (f.includes('titulosemaberto')||(f.includes('aberto')&&!f.includes('vencido'))) tipo='titulosAberto';
-  else if (f.includes('titulosvencidos')||f.includes('vencidos')) tipo='titulosVencidos';
-  else if (f.includes('liquidacoes')) tipo='liquidacoes';
-  else if (f.includes('recompras')) tipo='recompras';
-  else if (f.includes('prorrogacoes')) tipo='prorrogacoes';
-  return {ua, tipo};
+function identifyFile(fn){
+  const f=fn.toLowerCase(); let ua=null;
+  for(const [pfx,name] of Object.entries(UA_PREFIXES)){ if(f.startsWith(pfx)){ua=name;break} }
+  if(!ua) return {ua:null,tipo:null};
+  let tipo=null;
+  if(f.includes('carteira')) tipo='carteira';
+  else if(f.includes('operacoes')) tipo='operacoes';
+  else if(f.includes('titulosemaberto')||(f.includes('aberto')&&!f.includes('vencido'))) tipo='titulosAberto';
+  else if(f.includes('titulosvencidos')||f.includes('vencidos')) tipo='titulosVencidos';
+  else if(f.includes('liquidacoes')) tipo='liquidacoes';
+  else if(f.includes('recompras')) tipo='recompras';
+  else if(f.includes('prorrogacoes')) tipo='prorrogacoes';
+  return {ua,tipo};
 }
 
 // ══════════════════════════════════════════
 // UPLOAD
 // ══════════════════════════════════════════
-const dropZone = document.getElementById('drop-zone');
-dropZone.addEventListener('dragover', e=>{e.preventDefault();dropZone.classList.add('drag-over')});
-dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', e=>{e.preventDefault();dropZone.classList.remove('drag-over');handleFiles(e.dataTransfer.files)});
-
-function handleFiles(files) {
-  Array.from(files).forEach(f => {
-    if (!f.name.endsWith('.csv')) return;
-    const r = new FileReader();
-    r.onload = e => {
-      const rows = parseCSV(e.target.result);
-      if (!rows.length) return;
-      const {ua, tipo} = identifyFile(f.name);
-      pendingFiles[f.name] = {ua, tipo, rows};
-      renderFileChips();
+const dropZone=document.getElementById('drop-zone');
+dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over')});
+dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('drag-over');handleFiles(e.dataTransfer.files)});
+function handleFiles(files){
+  Array.from(files).forEach(f=>{
+    if(!f.name.endsWith('.csv')) return;
+    const r=new FileReader();
+    r.onload=e=>{
+      const rows=parseCSV(e.target.result); if(!rows.length) return;
+      const {ua,tipo}=identifyFile(f.name);
+      pendingFiles[f.name]={ua,tipo,rows}; renderFileChips();
     };
-    r.readAsText(f, 'UTF-8');
+    r.readAsText(f,'UTF-8');
   });
 }
-function renderFileChips() {
-  document.getElementById('files-list').innerHTML = Object.values(pendingFiles).map(pf => {
-    const ok = pf.ua && pf.tipo;
-    const label = ok ? (pf.ua.replace('FS Tatui ','') + ' · ' + TIPO_LABELS[pf.tipo]) : 'Não reconhecido';
+function renderFileChips(){
+  document.getElementById('files-list').innerHTML=Object.values(pendingFiles).map(pf=>{
+    const ok=pf.ua&&pf.tipo;
+    const label=ok?(pf.ua.replace('FS Tatui ','')+' · '+TIPO_LABELS[pf.tipo]):'Não reconhecido';
     return `<div class="file-chip"><span class="${ok?'fc-ok':'fc-warn'}">${ok?'✓':'?'}</span><span>${label}</span><span style="color:var(--text3);font-size:11px">${pf.rows.length} linhas</span></div>`;
   }).join('');
-  document.getElementById('btn-process').disabled = !Object.keys(pendingFiles).length;
+  document.getElementById('btn-process').disabled=!Object.keys(pendingFiles).length;
 }
-function processFiles() {
-  Object.values(pendingFiles).forEach(pf => { if(pf.ua&&pf.tipo&&DB[pf.ua]) DB[pf.ua][pf.tipo]=pf.rows; });
+function processFiles(){
+  Object.values(pendingFiles).forEach(pf=>{if(pf.ua&&pf.tipo&&DB[pf.ua]) DB[pf.ua][pf.tipo]=pf.rows});
   saveData(); updateDataLabel();
-  document.getElementById('admin-summary-body').innerHTML = UA_NAMES.flatMap(ua =>
-    Object.entries(DB[ua]).map(([tipo,data]) =>
+  document.getElementById('admin-summary-body').innerHTML=UA_NAMES.flatMap(ua=>
+    Object.entries(DB[ua]).map(([tipo,data])=>
       `<tr><td class="td-main">${ua.replace('FS Tatui ','')}</td><td>${TIPO_LABELS[tipo]}</td><td class="td-mono">${data.length}</td><td><span class="badge ${data.length?'badge-green':'badge-gray'}">${data.length?'Carregado':'Sem dados'}</span></td></tr>`
     )
   ).join('');
-  document.getElementById('admin-summary').style.display = 'block';
-  document.getElementById('process-status').textContent = '✓ Publicado em ' + new Date().toLocaleTimeString('pt-BR');
-  pendingFiles = {}; document.getElementById('files-list').innerHTML = ''; document.getElementById('btn-process').disabled = true;
+  document.getElementById('admin-summary').style.display='block';
+  document.getElementById('process-status').textContent='✓ Publicado em '+new Date().toLocaleTimeString('pt-BR');
+  pendingFiles={}; document.getElementById('files-list').innerHTML=''; document.getElementById('btn-process').disabled=true;
 }
-function updateDataLabel() {
-  const t = UA_NAMES.reduce((a,ua)=>a+Object.values(DB[ua]).reduce((x,y)=>x+y.length,0),0);
-  document.getElementById('data-referencia').textContent = t ? `${t.toLocaleString()} registros` : 'Sem dados carregados';
+function updateDataLabel(){
+  const t=UA_NAMES.reduce((a,ua)=>a+Object.values(DB[ua]).reduce((x,y)=>x+y.length,0),0);
+  document.getElementById('data-referencia').textContent=t?`${t.toLocaleString()} registros`:'Sem dados carregados';
 }
 
 // ══════════════════════════════════════════
 // RENDERS
 // ══════════════════════════════════════════
-function renderCarteira() {
-  const rows = byGerente(getRows('carteira'));
+function renderCarteira(){
+  const rows=byGerente(getRows('carteira'));
   let f=0,e=0,o=0,g=0;
   rows.forEach(r=>{f+=parseBRL(r['FATURIZACAO']);e+=parseBRL(r['ESTRUTURADO']);o+=parseBRL(r['OUTROS']);g+=parseBRL(r['TOTAL GERAL'])});
   document.getElementById('kpi-carteira').innerHTML=`
-    <div class="kpi-card kpi-blue"><div class="kpi-label">Total em Carteira</div><div class="kpi-value">${fmtBRL(g)}</div><div class="kpi-sub">${rows.length} cedentes</div></div>
+    <div class="kpi-card kpi-gold"><div class="kpi-label">Total em Carteira</div><div class="kpi-value">${fmtBRL(g)}</div><div class="kpi-sub">${rows.length} cedentes</div></div>
     <div class="kpi-card"><div class="kpi-label">Faturização</div><div class="kpi-value" style="font-size:18px">${fmtBRL(f)}</div><div class="kpi-sub">${g?((f/g*100).toFixed(1))+'%':'—'} do total</div></div>
     <div class="kpi-card"><div class="kpi-label">Estruturado</div><div class="kpi-value" style="font-size:18px">${fmtBRL(e)}</div></div>
     <div class="kpi-card"><div class="kpi-label">Outros</div><div class="kpi-value" style="font-size:18px">${fmtBRL(o)}</div></div>`;
-  document.getElementById('carteira-count').textContent = rows.length + ' cedentes';
-  document.getElementById('tbody-carteira').innerHTML = rows.length ? rows.map(r=>`<tr>
+  document.getElementById('carteira-count').textContent=rows.length+' cedentes';
+  document.getElementById('tbody-carteira').innerHTML=rows.length?rows.map(r=>`<tr>
     <td class="td-main">${r['CLIENTE']||'—'}</td><td>${uaBadge(r.__ua)}</td>
     <td class="td-mono">${fmtBRL(parseBRL(r['FATURIZACAO']))}</td><td class="td-mono">${fmtBRL(parseBRL(r['ESTRUTURADO']))}</td>
     <td class="td-mono">${fmtBRL(parseBRL(r['OUTROS']))}</td><td class="td-mono">${fmtBRL(parseBRL(r['TOTAL COM RISCO']))}</td>
-    <td class="td-mono" style="color:var(--text)">${fmtBRL(parseBRL(r['TOTAL GERAL']))}</td></tr>`).join('') : emptyRow(7);
+    <td class="td-mono" style="color:var(--gold-light);font-weight:600">${fmtBRL(parseBRL(r['TOTAL GERAL']))}</td></tr>`).join(''):emptyRow(7);
 }
 
-function renderOperacoes() {
-  const de=document.getElementById('op-de').value, ate=document.getElementById('op-ate').value;
-  const rows = byDate(byGerente(getRows('operacoes')),'DATA',de,ate);
+function renderOperacoes(){
+  const de=document.getElementById('op-de').value,ate=document.getElementById('op-ate').value;
+  const rows=byDate(byGerente(getRows('operacoes')),'DATA',de,ate);
   let b=0,l=0,t=0; rows.forEach(r=>{b+=parseBRL(r['BRUTO']);l+=parseBRL(r['LIQUIDO']);t+=parseInt(r['TITULOS'])||0});
-  const tm = rows.length ? (rows.reduce((a,r)=>a+parseBRL(r['TAXA DE JUROS']),0)/rows.length) : 0;
+  const tm=rows.length?(rows.reduce((a,r)=>a+parseBRL(r['TAXA DE JUROS']),0)/rows.length):0;
   document.getElementById('kpi-operacoes').innerHTML=`
-    <div class="kpi-card kpi-blue"><div class="kpi-label">Volume Bruto</div><div class="kpi-value">${fmtBRL(b)}</div><div class="kpi-sub">${rows.length} operações · ${t} títulos</div></div>
+    <div class="kpi-card kpi-gold"><div class="kpi-label">Volume Bruto</div><div class="kpi-value">${fmtBRL(b)}</div><div class="kpi-sub">${rows.length} operações · ${t} títulos</div></div>
     <div class="kpi-card kpi-green"><div class="kpi-label">Volume Líquido</div><div class="kpi-value">${fmtBRL(l)}</div></div>
     <div class="kpi-card"><div class="kpi-label">Taxa Média</div><div class="kpi-value" style="font-size:18px">${tm.toFixed(2)}%</div></div>
     <div class="kpi-card"><div class="kpi-label">Operações</div><div class="kpi-value" style="font-size:20px">${rows.length}</div></div>`;
-  document.getElementById('operacoes-count').textContent = rows.length + ' registros';
-  document.getElementById('tbody-operacoes').innerHTML = rows.length ? rows.map(r=>`<tr>
+  document.getElementById('operacoes-count').textContent=rows.length+' registros';
+  document.getElementById('tbody-operacoes').innerHTML=rows.length?rows.map(r=>`<tr>
     <td class="td-mono">${r['DATA']||'—'}</td><td class="td-main">${r['CLIENTE']||'—'}</td><td>${uaBadge(r.__ua)}</td>
-    <td><span class="badge badge-blue">${r['PRODUTO']||'—'}</span></td><td class="td-mono">${r['TITULOS']||'—'}</td>
+    <td><span class="badge badge-gold">${r['PRODUTO']||'—'}</span></td><td class="td-mono">${r['TITULOS']||'—'}</td>
     <td class="td-mono">${fmtBRL(parseBRL(r['BRUTO']))}</td><td class="td-mono">${parseBRL(r['TAXA DE JUROS']).toFixed(2)}%</td>
     <td class="td-mono" style="color:var(--green)">${fmtBRL(parseBRL(r['LIQUIDO']))}</td>
-    <td class="td-mono">${parseBRL(r['SPREAD']).toFixed(2)}%</td></tr>`).join('') : emptyRow(9);
+    <td class="td-mono">${parseBRL(r['SPREAD']).toFixed(2)}%</td></tr>`).join(''):emptyRow(9);
 }
 
-function renderInadimplencia() {
-  const de=document.getElementById('ind-de').value, ate=document.getElementById('ind-ate').value;
-  const venc = byDate(byGerente(getRows('titulosVencidos')),'VENCIMENTO',de,ate);
-  const aber = byDate(byGerente(getRows('titulosAberto')),'VENCIMENTO',de,ate);
+function renderInadimplencia(){
+  const de=document.getElementById('ind-de').value,ate=document.getElementById('ind-ate').value;
+  const venc=byDate(byGerente(getRows('titulosVencidos')),'VENCIMENTO',de,ate);
+  const aber=byDate(byGerente(getRows('titulosAberto')),'VENCIMENTO',de,ate);
   const tv=venc.reduce((a,r)=>a+parseBRL(r['VALOR LIQUIDO']),0);
   const ta=aber.reduce((a,r)=>a+parseBRL(r['VALOR']),0);
   const dm=venc.length?Math.round(venc.reduce((a,r)=>a+(parseInt(r['DIAS VENCIDOS'])||0),0)/venc.length):0;
@@ -521,65 +666,66 @@ function renderInadimplencia() {
     <div class="kpi-card kpi-amber"><div class="kpi-label">Em Aberto</div><div class="kpi-value">${fmtBRL(ta)}</div><div class="kpi-sub">${aber.length} títulos</div></div>
     <div class="kpi-card"><div class="kpi-label">Dias médios vencidos</div><div class="kpi-value" style="font-size:20px;color:var(--red)">${dm}</div></div>
     <div class="kpi-card"><div class="kpi-label">Exposição total</div><div class="kpi-value" style="font-size:18px">${fmtBRL(tv+ta)}</div></div>`;
-  document.getElementById('venc-count').textContent = venc.length + ' títulos';
-  document.getElementById('tbody-vencidos').innerHTML = venc.length ? venc.map(r=>{
-    const d=parseInt(r['DIAS VENCIDOS'])||0, bc=d>90?'badge-red':d>30?'badge-amber':'badge-gray';
-    return `<tr><td class="td-main">${r['CLIENTE']||'—'}</td><td>${uaBadge(r.__ua)}</td>
+  document.getElementById('venc-count').textContent=venc.length+' títulos';
+  document.getElementById('tbody-vencidos').innerHTML=venc.length?venc.map(r=>{
+    const d=parseInt(r['DIAS VENCIDOS'])||0,bc=d>90?'badge-red':d>30?'badge-amber':'badge-gray';
+    return`<tr><td class="td-main">${r['CLIENTE']||'—'}</td><td>${uaBadge(r.__ua)}</td>
       <td style="color:var(--text2)">${r['SACADO']||'—'}</td><td class="td-mono">${r['VENCIMENTO']||'—'}</td>
       <td><span class="badge ${bc}">${d}d</span></td>
       <td class="td-mono" style="color:var(--red)">${fmtBRL(parseBRL(r['VALOR LIQUIDO']))}</td>
       <td><span class="badge badge-gray">${r['SITUACAO']||'—'}</span></td>
       <td style="font-size:12px;color:var(--text3)">${r['MANIFESTO']||'—'}</td></tr>`;
-  }).join('') : emptyRow(8);
-  document.getElementById('aberto-count').textContent = aber.length + ' títulos';
-  document.getElementById('tbody-aberto').innerHTML = aber.length ? aber.map(r=>`<tr>
+  }).join(''):emptyRow(8);
+  document.getElementById('aberto-count').textContent=aber.length+' títulos';
+  document.getElementById('tbody-aberto').innerHTML=aber.length?aber.map(r=>`<tr>
     <td class="td-main">${r['CLIENTE']||'—'}</td><td>${uaBadge(r.__ua)}</td>
     <td style="color:var(--text2)">${r['SACADO']||'—'}</td><td class="td-mono">${r['VENCIMENTO']||'—'}</td>
     <td class="td-mono">${r['PRAZO REAL']||'—'}d</td><td class="td-mono">${parseBRL(r['TAXA']).toFixed(2)}%</td>
     <td class="td-mono">${fmtBRL(parseBRL(r['VALOR']))}</td>
-    <td class="td-mono" style="color:var(--green)">${fmtBRL(parseBRL(r['RECEITA']))}</td></tr>`).join('') : emptyRow(8);
+    <td class="td-mono" style="color:var(--green)">${fmtBRL(parseBRL(r['RECEITA']))}</td></tr>`).join(''):emptyRow(8);
 }
 
-function renderMovimentacoes() {
-  const de=document.getElementById('mov-de').value, ate=document.getElementById('mov-ate').value;
-  const meusCed = new Set(byGerente(getRows('carteira')).map(r=>(r['CLIENTE']||'').toLowerCase().trim()));
-  const matchCed = rows => currentUser.isAdmin ? rows : rows.filter(r=>meusCed.has((r['CLIENTE']||'').toLowerCase().trim()));
-  const liqs  = byDate(matchCed(getRows('liquidacoes')), 'DATA', de, ate);
-  const recs  = byDate(matchCed(getRows('recompras')),   'DATA', de, ate);
-  let prorr   = byDate(getRows('prorrogacoes'),          'DATA', de, ate);
-  if (!currentUser.isAdmin) prorr = prorr.filter(r=>meusCed.has((r['CLIENTE']||'').toLowerCase().trim()));
+function renderMovimentacoes(){
+  const de=document.getElementById('mov-de').value,ate=document.getElementById('mov-ate').value;
+  const meusCed=new Set(byGerente(getRows('carteira')).map(r=>(r['CLIENTE']||'').toLowerCase().trim()));
+  const isAdmin=currentUser?.isAdmin;
+  const matchCed=rows=>isAdmin&&adminViewAs==='__todos__'?rows:rows.filter(r=>meusCed.has((r['CLIENTE']||'').toLowerCase().trim()));
+  const liqs=byDate(matchCed(getRows('liquidacoes')),'DATA',de,ate);
+  const recs=byDate(matchCed(getRows('recompras')),'DATA',de,ate);
+  let prorr=byDate(getRows('prorrogacoes'),'DATA',de,ate);
+  if(!(isAdmin&&adminViewAs==='__todos__')) prorr=prorr.filter(r=>meusCed.has((r['CLIENTE']||'').toLowerCase().trim()));
   const tl=liqs.reduce((a,r)=>a+parseBRL(r['LIQUIDO']),0);
-  const tr=recs.reduce((a,r)=>a+parseBRL(r['LIQUIDO']),0);
+  const tr2=recs.reduce((a,r)=>a+parseBRL(r['LIQUIDO']),0);
   const tp=prorr.reduce((a,r)=>a+parseBRL(r['CUSTO TOTAL']),0);
   document.getElementById('kpi-movimentacoes').innerHTML=`
     <div class="kpi-card kpi-green"><div class="kpi-label">Liquidações</div><div class="kpi-value">${fmtBRL(tl)}</div><div class="kpi-sub">${liqs.length} registros</div></div>
-    <div class="kpi-card kpi-red"><div class="kpi-label">Recompras</div><div class="kpi-value">${fmtBRL(tr)}</div><div class="kpi-sub">${recs.length} registros</div></div>
+    <div class="kpi-card kpi-red"><div class="kpi-label">Recompras</div><div class="kpi-value">${fmtBRL(tr2)}</div><div class="kpi-sub">${recs.length} registros</div></div>
     <div class="kpi-card kpi-amber"><div class="kpi-label">Prorrogações</div><div class="kpi-value" style="font-size:20px">${prorr.length}</div><div class="kpi-sub">Custo: ${fmtBRL(tp)}</div></div>`;
-  document.getElementById('liq-count').textContent = liqs.length + ' registros';
-  document.getElementById('tbody-liquidacoes').innerHTML = liqs.length ? liqs.map(r=>`<tr>
+  document.getElementById('liq-count').textContent=liqs.length+' registros';
+  document.getElementById('tbody-liquidacoes').innerHTML=liqs.length?liqs.map(r=>`<tr>
     <td class="td-mono">${r['DATA']||'—'}</td><td class="td-main">${r['CLIENTE']||'—'}</td><td>${uaBadge(r.__ua)}</td>
-    <td><span class="badge badge-blue">${r['PRODUTO']||'—'}</span></td><td class="td-mono">${r['TITULOS']||'—'}</td>
+    <td><span class="badge badge-gold">${r['PRODUTO']||'—'}</span></td><td class="td-mono">${r['TITULOS']||'—'}</td>
     <td class="td-mono">${fmtBRL(parseBRL(r['BRUTO']))}</td><td class="td-mono">${fmtBRL(parseBRL(r['JUROS-MULTA']))}</td>
-    <td class="td-mono" style="color:var(--green)">${fmtBRL(parseBRL(r['LIQUIDO']))}</td></tr>`).join('') : emptyRow(8);
-  document.getElementById('rec-count').textContent = recs.length + ' registros';
-  document.getElementById('tbody-recompras').innerHTML = recs.length ? recs.map(r=>`<tr>
+    <td class="td-mono" style="color:var(--green)">${fmtBRL(parseBRL(r['LIQUIDO']))}</td></tr>`).join(''):emptyRow(8);
+  document.getElementById('rec-count').textContent=recs.length+' registros';
+  document.getElementById('tbody-recompras').innerHTML=recs.length?recs.map(r=>`<tr>
     <td class="td-mono">${r['DATA']||'—'}</td><td class="td-main">${r['CLIENTE']||'—'}</td><td>${uaBadge(r.__ua)}</td>
     <td><span class="badge badge-red">${r['PRODUTO']||'—'}</span></td><td class="td-mono">${r['TITULOS']||'—'}</td>
     <td class="td-mono">${fmtBRL(parseBRL(r['BRUTO']))}</td><td class="td-mono">${fmtBRL(parseBRL(r['JUROS-MULTA']))}</td>
-    <td class="td-mono" style="color:var(--red)">${fmtBRL(parseBRL(r['LIQUIDO']))}</td></tr>`).join('') : emptyRow(8);
-  document.getElementById('prorr-count').textContent = prorr.length + ' registros';
-  document.getElementById('tbody-prorrogacoes').innerHTML = prorr.length ? prorr.map(r=>`<tr>
+    <td class="td-mono" style="color:var(--red)">${fmtBRL(parseBRL(r['LIQUIDO']))}</td></tr>`).join(''):emptyRow(8);
+  document.getElementById('prorr-count').textContent=prorr.length+' registros';
+  document.getElementById('tbody-prorrogacoes').innerHTML=prorr.length?prorr.map(r=>`<tr>
     <td class="td-mono">${r['DATA']||'—'}</td><td class="td-main">${r['CLIENTE']||'—'}</td><td>${uaBadge(r.__ua)}</td>
     <td class="td-mono" style="font-size:11px">${r['NUMERO']||'—'}</td>
     <td class="td-mono">${r['VENCIMENTO ATUAL']||'—'}</td>
     <td class="td-mono" style="color:var(--amber)">${r['NOVO VENCIMENTO']||'—'}</td>
     <td class="td-mono">${r['DIFERENCA EM DIAS']||'—'}d</td>
-    <td class="td-mono" style="color:var(--red)">${fmtBRL(parseBRL(r['CUSTO TOTAL']))}</td></tr>`).join('') : emptyRow(8);
+    <td class="td-mono" style="color:var(--red)">${fmtBRL(parseBRL(r['CUSTO TOTAL']))}</td></tr>`).join(''):emptyRow(8);
 }
 
 // Init datas
 (function(){
-  const n=new Date(), y=n.getFullYear(), m=String(n.getMonth()+1).padStart(2,'0');
+  const n=new Date(),y=n.getFullYear(),m=String(n.getMonth()+1).padStart(2,'0');
   ['op-de','ind-de','mov-de'].forEach(id=>document.getElementById(id).value=`${y}-${m}-01`);
   ['op-ate','ind-ate','mov-ate'].forEach(id=>document.getElementById(id).value=toInputDate(n));
 })();
