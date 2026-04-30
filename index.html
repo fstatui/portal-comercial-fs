@@ -459,14 +459,13 @@ async function saveData(){
       headers: { 'x-ms-blob-type': 'BlockBlob', 'Content-Type': 'application/json' },
       body: payload
     });
-    if(!res.ok) throw new Error('Blob PUT ' + res.status + ' ' + await res.text());
+    if(!res.ok) throw new Error('Blob PUT ' + res.status + ': ' + await res.text());
     localStorage.setItem(STORAGE_KEY_TS, ts);
     updateDataLabel();
     return true;
   }catch(e){
     console.error('Erro ao salvar no Blob:', e);
-    // Fallback local
-    localStorage.setItem('fidc_db_local', JSON.stringify({ db: DB, ts: new Date().toISOString() }));
+    // Salva apenas o timestamp localmente (dados são grandes demais para localStorage)
     localStorage.setItem(STORAGE_KEY_TS, new Date().toISOString());
     updateDataLabel();
     return false;
@@ -478,7 +477,7 @@ async function loadData(){
     const controller = new AbortController();
     setTimeout(()=>controller.abort(), 8000);
     const res = await fetch(blobFileUrl('dados.json', true), { signal: controller.signal });
-    if(res.status === 404){ return; } // Ainda não tem dados
+    if(res.status === 404){ return; }
     if(res.ok){
       const payload = await res.json();
       if(payload?.db) DB = payload.db;
@@ -488,11 +487,6 @@ async function loadData(){
     throw new Error('Blob GET ' + res.status);
   }catch(e){
     console.warn('Blob load falhou:', e.message);
-    // Fallback localStorage
-    try{
-      const s = localStorage.getItem('fidc_db_local');
-      if(s){ const p=JSON.parse(s); if(p?.db) DB=p.db; if(p?.ts) localStorage.setItem(STORAGE_KEY_TS,p.ts); }
-    }catch(e2){}
   }
 }
 
