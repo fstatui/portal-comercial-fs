@@ -175,6 +175,12 @@
   ::-webkit-scrollbar-track{background:transparent}
   ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
   ::-webkit-scrollbar-thumb:hover{background:var(--gold-dark)}
+
+  /* RODAPÉ */
+  .footer{border-top:1px solid var(--gold-dark);background:var(--surface);
+    padding:14px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .footer span{font-size:11px;color:var(--text3)}
+  .footer strong{color:var(--gold-light)}
 </style>
 </head>
 <body>
@@ -356,10 +362,15 @@
       </div>
     </div>
 
-  </div>
-</div>
+  </div><!-- /main -->
 
-<script>
+  <!-- RODAPÉ -->
+  <div class="footer">
+    <span>Desenvolvido e implementado por <strong>José Roberto Rocha</strong></span>
+    <span>Versão do sistema: <strong>V001</strong></span>
+  </div>
+
+</div><!-- /portal-screen -->
 // ══════════════════════════════════════════
 // MAPEAMENTO E-MAIL → PERFIL
 // ══════════════════════════════════════════
@@ -427,18 +438,57 @@ let DB = makeEmptyDB();
 // ══════════════════════════════════════════
 // PERSISTÊNCIA — localStorage (persiste entre sessões)
 // ══════════════════════════════════════════
-function saveData(){
+// ══════════════════════════════════════════
+// PERSISTÊNCIA — Azure Blob Storage
+// ══════════════════════════════════════════
+const BLOB_ACCOUNT   = 'portalfsstatui';
+const BLOB_CONTAINER = 'portal-dados';
+const BLOB_FILE      = 'dados.json';
+const BLOB_SAS       = 'sv=2025-11-05&ss=b&srt=o&sp=rwctfx&se=2027-05-02T01:21:57Z&st=2026-04-30T17:06:57Z&spr=https&sig=DwDi%2F9b%2FWIliURbLRe3L5FKNFADRZlmyD89YLJzr3IM%3D';
+const BLOB_URL       = `https://${BLOB_ACCOUNT}.blob.core.windows.net/${BLOB_CONTAINER}/${BLOB_FILE}?${BLOB_SAS}`;
+
+async function saveData(){
   try{
+    const ts = new Date().toISOString();
+    const payload = JSON.stringify({ db: DB, ts });
+    const res = await fetch(BLOB_URL, {
+      method: 'PUT',
+      headers: {
+        'x-ms-blob-type': 'BlockBlob',
+        'Content-Type': 'application/json'
+      },
+      body: payload
+    });
+    if(!res.ok) throw new Error('Blob PUT falhou: ' + res.status);
+    localStorage.setItem('fidc_ts', ts);
+    updateDataLabel();
+    return true;
+  }catch(e){
+    console.error('Erro ao salvar no Blob:', e);
+    // Fallback local
     localStorage.setItem('fidc_db6', JSON.stringify(DB));
     localStorage.setItem('fidc_ts', new Date().toISOString());
     updateDataLabel();
-  }catch(e){ console.error('Erro ao salvar:', e); }
+    return false;
+  }
 }
-function loadData(){
+
+async function loadData(){
+  try{
+    const res = await fetch(BLOB_URL + '&t=' + Date.now());
+    if(res.ok){
+      const payload = await res.json();
+      if(payload?.db) DB = payload.db;
+      if(payload?.ts) localStorage.setItem('fidc_ts', payload.ts);
+      return true;
+    }
+  }catch(e){ console.warn('Blob indisponível, usando cache local:', e); }
+  // Fallback localStorage
   try{
     const s = localStorage.getItem('fidc_db6');
     if(s) DB = JSON.parse(s);
-  }catch(e){ console.error('Erro ao carregar:', e); }
+  }catch(e){}
+  return false;
 }
 
 
@@ -479,8 +529,9 @@ function logout(){ window.location.href='/.auth/logout'; }
     updateAdminBarInfo();
   }
 
-  // Carrega dados do localStorage (persistem entre sessões e logoffs)
-  loadData();
+  // Carrega dados do GitHub (persistentes para todos os usuários)
+  document.getElementById('update-bar-value').textContent = 'Carregando dados…';
+  await loadData();
   updateDataLabel();
   renderCurrentTab();
 })();
@@ -619,17 +670,21 @@ function renderFileChips(){
   }).join('');
   document.getElementById('btn-process').disabled=!Object.keys(pendingFiles).length;
 }
-function processFiles(){
+async function processFiles(){
   Object.values(pendingFiles).forEach(pf=>{if(pf.ua&&pf.tipo&&DB[pf.ua]) DB[pf.ua][pf.tipo]=pf.rows});
-  saveData(); // salva em localStorage com timestamp
+  document.getElementById('process-status').textContent='⏳ Salvando dados…';
+  document.getElementById('btn-process').disabled=true;
+  const ok = await saveData();
   document.getElementById('admin-summary-body').innerHTML=UA_NAMES.flatMap(ua=>
     Object.entries(DB[ua]).map(([tipo,data])=>
       `<tr><td class="td-main">${ua.replace('FS Tatui ','')}</td><td>${TIPO_LABELS[tipo]}</td><td class="td-mono">${data.length}</td><td><span class="badge ${data.length?'badge-green':'badge-gray'}">${data.length?'Carregado':'Sem dados'}</span></td></tr>`
     )
   ).join('');
   document.getElementById('admin-summary').style.display='block';
-  document.getElementById('process-status').textContent='✓ Publicado em '+new Date().toLocaleTimeString('pt-BR');
-  pendingFiles={}; document.getElementById('files-list').innerHTML=''; document.getElementById('btn-process').disabled=true;
+  document.getElementById('process-status').textContent = ok
+    ? '✓ Publicado com sucesso — todos os agentes já podem ver os dados'
+    : '⚠ Salvo localmente (verifique o token GitHub)';
+  pendingFiles={}; document.getElementById('files-list').innerHTML='';
 }
 function updateDataLabel(){
   const t = UA_NAMES.reduce((a,ua)=>a+Object.values(DB[ua]).reduce((x,y)=>x+y.length,0),0);
