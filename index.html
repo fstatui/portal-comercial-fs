@@ -438,68 +438,62 @@ function makeEmptyDB() {
 let DB = makeEmptyDB();
 
 // ══════════════════════════════════════════
-// PERSISTÊNCIA — localStorage compartilhado
-// Chave fixa — dados sobrevivem entre sessões
+// PERSISTÊNCIA — Azure Blob Storage
 // ══════════════════════════════════════════
-const STORAGE_KEY    = 'fidc_portal_dados_v1';
+const BLOB_ACCOUNT   = 'portalfsstatui';
+const BLOB_CONTAINER = 'portal-dados';
+const BLOB_SAS       = 'sv=2025-11-05&ss=b&srt=o&sp=rwlctfx&se=2030-01-02T02:20:45Z&st=2026-04-28T03:00:00Z&spr=https&sig=ng%2BI8N8dlDjTNboxQ1KAnozkHpx5TxIfLyBzqFzGxOs%3D';
+const BLOB_BASE      = `https://${BLOB_ACCOUNT}.blob.core.windows.net/${BLOB_CONTAINER}`;
 const STORAGE_KEY_TS = 'fidc_portal_ts_v1';
+
+function blobFileUrl(filename, nocache){
+  return `${BLOB_BASE}/${filename}?${BLOB_SAS}${nocache?'&t='+Date.now():''}`;
+}
 
 async function saveData(){
   try{
     const ts = new Date().toISOString();
     const payload = JSON.stringify({ db: DB, ts });
-    // Salva no localStorage
-    localStorage.setItem(STORAGE_KEY, payload);
+    const res = await fetch(blobFileUrl('dados.json'), {
+      method: 'PUT',
+      headers: { 'x-ms-blob-type': 'BlockBlob', 'Content-Type': 'application/json' },
+      body: payload
+    });
+    if(!res.ok) throw new Error('Blob PUT ' + res.status + ' ' + await res.text());
     localStorage.setItem(STORAGE_KEY_TS, ts);
-    // Tenta salvar no Blob em background (sem bloquear)
-    salvarNoBlob(payload).catch(e => console.warn('Blob save falhou (não crítico):', e));
     updateDataLabel();
     return true;
   }catch(e){
-    console.error('Erro ao salvar:', e);
+    console.error('Erro ao salvar no Blob:', e);
+    // Fallback local
+    localStorage.setItem('fidc_db_local', JSON.stringify({ db: DB, ts: new Date().toISOString() }));
+    localStorage.setItem(STORAGE_KEY_TS, new Date().toISOString());
+    updateDataLabel();
     return false;
   }
 }
 
-async function salvarNoBlob(payload){
-  const BLOB_SAS = 'sv=2025-11-05&ss=b&srt=o&sp=rwctfx&se=2027-05-02T01:21:57Z&st=2026-04-30T17:06:57Z&spr=https&sig=DwDi%2F9b%2FWIliURbLRe3L5FKNFADRZlmyD89YLJzr3IM%3D';
-  const url = `https://portalfsstatui.blob.core.windows.net/portal-dados/dados.json?${BLOB_SAS}`;
-  await fetch(url, {
-    method:'PUT',
-    headers:{'x-ms-blob-type':'BlockBlob','Content-Type':'application/json'},
-    body: payload
-  });
-}
-
 async function loadData(){
-  // 1. Tenta carregar do Blob (dados atualizados pelo admin)
   try{
-    const BLOB_SAS = 'sv=2025-11-05&ss=b&srt=o&sp=rwctfx&se=2027-05-02T01:21:57Z&st=2026-04-30T17:06:57Z&spr=https&sig=DwDi%2F9b%2FWIliURbLRe3L5FKNFADRZlmyD89YLJzr3IM%3D';
-    const url = `https://portalfsstatui.blob.core.windows.net/portal-dados/dados.json?${BLOB_SAS}&t=${Date.now()}`;
     const controller = new AbortController();
-    setTimeout(()=>controller.abort(), 6000);
-    const res = await fetch(url, { signal: controller.signal });
+    setTimeout(()=>controller.abort(), 8000);
+    const res = await fetch(blobFileUrl('dados.json', true), { signal: controller.signal });
+    if(res.status === 404){ return; } // Ainda não tem dados
     if(res.ok){
       const payload = await res.json();
-      if(payload?.db){
-        DB = payload.db;
-        if(payload.ts) localStorage.setItem(STORAGE_KEY_TS, payload.ts);
-        // Atualiza cache local com dados do Blob
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-        return;
-      }
-    }
-  }catch(e){ console.warn('Blob load falhou, usando cache local:', e.message); }
-
-  // 2. Fallback: usa cache do localStorage
-  try{
-    const s = localStorage.getItem(STORAGE_KEY);
-    if(s){
-      const payload = JSON.parse(s);
       if(payload?.db) DB = payload.db;
       if(payload?.ts) localStorage.setItem(STORAGE_KEY_TS, payload.ts);
+      return;
     }
-  }catch(e){}
+    throw new Error('Blob GET ' + res.status);
+  }catch(e){
+    console.warn('Blob load falhou:', e.message);
+    // Fallback localStorage
+    try{
+      const s = localStorage.getItem('fidc_db_local');
+      if(s){ const p=JSON.parse(s); if(p?.db) DB=p.db; if(p?.ts) localStorage.setItem(STORAGE_KEY_TS,p.ts); }
+    }catch(e2){}
+  }
 }
 
 
@@ -696,7 +690,7 @@ async function processFiles(){
   document.getElementById('admin-summary').style.display='block';
   document.getElementById('process-status').textContent = ok
     ? '✓ Publicado com sucesso — todos os agentes já podem ver os dados'
-    : '⚠ Salvo localmente (verifique o token GitHub)';
+    : '⚠ Erro ao salvar no Blob — verifique o console (F12)';
   pendingFiles={}; document.getElementById('files-list').innerHTML='';
 }
 function updateDataLabel(){
