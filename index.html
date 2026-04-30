@@ -475,7 +475,14 @@ async function saveData(){
 
 async function loadData(){
   try{
-    const res = await fetch(BLOB_URL + '&t=' + Date.now());
+    // Timeout de 8 segundos para não travar o loading
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(), 8000);
+    const res = await fetch(BLOB_URL + '&t=' + Date.now(), { signal: controller.signal });
+    clearTimeout(timeout);
+    if(res.status === 404){
+      return true; // Primeiro uso — dados vazios, normal
+    }
     if(res.ok){
       const payload = await res.json();
       if(payload?.db) DB = payload.db;
@@ -529,9 +536,9 @@ function logout(){ window.location.href='/.auth/logout'; }
     updateAdminBarInfo();
   }
 
-  // Carrega dados do GitHub (persistentes para todos os usuários)
+  // Carrega dados do Blob Storage (persistentes para todos os usuários)
   document.getElementById('update-bar-value').textContent = 'Carregando dados…';
-  await loadData();
+  try{ await loadData(); }catch(e){ console.warn('Erro no loadData:', e); }
   updateDataLabel();
   renderCurrentTab();
 })();
