@@ -13,9 +13,9 @@
     --surface3:#333333;
     --border:rgba(255,255,255,0.07);
     --border2:rgba(255,255,255,0.12);
-    --text:#e8e8e8;
-    --text2:#999999;
-    --text3:#666666;
+    --text:#ffffff;
+    --text2:#ffffff;
+    --text3:#cccccc;
     --accent:#8B722C;
     --accent2:#544510;
     --accent-light:#B8944A;
@@ -56,7 +56,7 @@
     background:var(--surface);border-bottom:2px solid var(--gold-dark);position:sticky;top:0;z-index:100}
   .header-left{display:flex;align-items:center;gap:16px}
   .header-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-  .header-logo img{height:36px;width:auto}
+  .header-logo img{height:48px;width:auto}
   .header-sep{width:1px;height:20px;background:var(--border2)}
   .header-user{font-size:13px;color:var(--text2)}
   .badge-admin{font-size:10px;font-weight:600;letter-spacing:.08em;background:rgba(139,114,44,.2);
@@ -65,7 +65,16 @@
     cursor:pointer;padding:6px 14px;border-radius:6px;transition:all .2s;font-family:inherit}
   .btn-logout:hover{color:var(--text);border-color:var(--gold);background:rgba(139,114,44,.1)}
 
-  /* ADMIN GERENTE SELECTOR */
+  /* BARRA DE ATUALIZAÇÃO */
+  .update-bar{
+    display:flex;align-items:center;justify-content:center;gap:12px;
+    padding:8px 28px;background:var(--gold-dark);border-bottom:1px solid var(--gold);
+    position:sticky;top:60px;z-index:99;
+  }
+  .update-bar-icon{font-size:14px}
+  .update-bar-label{font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--gold-light);text-transform:uppercase}
+  .update-bar-value{font-size:13px;font-weight:600;color:#ffffff;letter-spacing:.04em}
+  .update-bar-none{font-size:12px;color:rgba(255,255,255,.5);font-style:italic}
   .admin-bar{display:flex;align-items:center;gap:12px;padding:10px 28px;
     background:rgba(139,114,44,.08);border-bottom:1px solid rgba(139,114,44,.2);flex-wrap:wrap}
   .admin-bar-label{font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;white-space:nowrap}
@@ -203,12 +212,15 @@
       <span class="badge-admin" id="badge-admin" style="display:none">Admin</span>
     </div>
     <div style="display:flex;align-items:center;gap:12px">
-      <div id="data-referencia-wrap" style="display:flex;flex-direction:column;align-items:flex-end;gap:1px">
-        <span id="data-referencia-label" style="font-size:9px;font-weight:600;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;display:none">Última Atualização</span>
-        <span class="data-date" id="data-referencia">Sem dados carregados</span>
-      </div>
       <button class="btn-logout" onclick="logout()">Sair</button>
     </div>
+  </div>
+
+  <!-- BARRA DE ÚLTIMA ATUALIZAÇÃO (visível para todos) -->
+  <div class="update-bar" id="update-bar">
+    <span class="update-bar-icon">🕐</span>
+    <span class="update-bar-label">Última Atualização:</span>
+    <span class="update-bar-value" id="update-bar-value">—</span>
   </div>
 
   <!-- SELETOR DE GERENTE (somente admin) -->
@@ -411,18 +423,74 @@ function makeEmptyDB() {
   return db;
 }
 let DB = makeEmptyDB();
+
+// ══════════════════════════════════════════
+// PERSISTÊNCIA — localStorage (persiste entre sessões)
+// ══════════════════════════════════════════
 function saveData(){
   try{
-    const ts = new Date().toISOString();
-    sessionStorage.setItem('fidc_db5', JSON.stringify(DB));
-    sessionStorage.setItem('fidc_ts', ts);
-  }catch(e){}
+    localStorage.setItem('fidc_db6', JSON.stringify(DB));
+    localStorage.setItem('fidc_ts', new Date().toISOString());
+    updateDataLabel();
+  }catch(e){ console.error('Erro ao salvar dados:', e); }
 }
 function loadData(){
   try{
-    const s = sessionStorage.getItem('fidc_db5');
+    const s = localStorage.getItem('fidc_db6');
     if(s) DB = JSON.parse(s);
-  }catch(e){}
+  }catch(e){ console.error('Erro ao carregar dados:', e); }
+}
+
+// ══════════════════════════════════════════
+// SHAREPOINT — carrega CSVs automaticamente
+// ══════════════════════════════════════════
+const SP_FOLDER_ID = '01JYEMXNFRAOQG43X63FG3EWJL67BNGVDT';
+const SP_DRIVE_ID  = 'b!G88A2qMV2UWNPysCBhFEnYBcNwsczXZAuFkvdc80micaK8Cv7yv5RoBVuJJTtKm7';
+
+async function loadFromSharePoint(){
+  try{
+    // Busca token Microsoft via /.auth/me
+    const authRes = await fetch('/.auth/me');
+    const authData = await authRes.json();
+    if(!authData?.clientPrincipal) return false;
+
+    // Lista arquivos na pasta
+    const listRes = await fetch(
+      `https://graph.microsoft.com/v1.0/drives/${SP_DRIVE_ID}/items/${SP_FOLDER_ID}/children`,
+      { headers: { 'Authorization': `Bearer ${authData.clientPrincipal.accessToken}` } }
+    );
+    if(!listRes.ok) return false;
+    const listData = await listRes.json();
+    const csvFiles = (listData.value||[]).filter(f => f.name.toLowerCase().endsWith('.csv'));
+    if(!csvFiles.length) return false;
+
+    // Baixa cada CSV e processa
+    const newDB = makeEmptyDB();
+    let lastModified = null;
+    await Promise.all(csvFiles.map(async file => {
+      try{
+        const dlRes = await fetch(file['@microsoft.graph.downloadUrl']);
+        const text = await dlRes.text();
+        const rows = parseCSV(text);
+        if(!rows.length) return;
+        const {ua, tipo} = identifyFile(file.name);
+        if(ua && tipo && newDB[ua]) newDB[ua][tipo] = rows;
+        const mod = new Date(file.lastModifiedDateTime);
+        if(!lastModified || mod > lastModified) lastModified = mod;
+      }catch(e){}
+    }));
+
+    const total = UA_NAMES.reduce((a,ua)=>a+Object.values(newDB[ua]).reduce((x,y)=>x+y.length,0),0);
+    if(total === 0) return false;
+
+    DB = newDB;
+    localStorage.setItem('fidc_db6', JSON.stringify(DB));
+    if(lastModified) localStorage.setItem('fidc_ts', lastModified.toISOString());
+    return true;
+  }catch(e){
+    console.warn('SharePoint indisponível, usando cache local:', e);
+    return false;
+  }
 }
 
 // ══════════════════════════════════════════
@@ -460,7 +528,14 @@ function logout(){ window.location.href='/.auth/logout'; }
     document.getElementById('admin-bar').style.display='flex';
     updateAdminBarInfo();
   }
-  loadData(); updateDataLabel(); renderCurrentTab();
+
+  // Tenta carregar do SharePoint; se falhar usa cache local
+  document.getElementById('update-bar-value').textContent = 'Carregando dados…';
+  const spOk = await loadFromSharePoint();
+  if(!spOk) loadData(); // fallback: cache localStorage
+
+  updateDataLabel();
+  renderCurrentTab();
 })();
 
 // ══════════════════════════════════════════
@@ -599,7 +674,7 @@ function renderFileChips(){
 }
 function processFiles(){
   Object.values(pendingFiles).forEach(pf=>{if(pf.ua&&pf.tipo&&DB[pf.ua]) DB[pf.ua][pf.tipo]=pf.rows});
-  saveData(); updateDataLabel();
+  saveData(); // salva em localStorage com timestamp
   document.getElementById('admin-summary-body').innerHTML=UA_NAMES.flatMap(ua=>
     Object.entries(DB[ua]).map(([tipo,data])=>
       `<tr><td class="td-main">${ua.replace('FS Tatui ','')}</td><td>${TIPO_LABELS[tipo]}</td><td class="td-mono">${data.length}</td><td><span class="badge ${data.length?'badge-green':'badge-gray'}">${data.length?'Carregado':'Sem dados'}</span></td></tr>`
@@ -611,23 +686,17 @@ function processFiles(){
 }
 function updateDataLabel(){
   const t = UA_NAMES.reduce((a,ua)=>a+Object.values(DB[ua]).reduce((x,y)=>x+y.length,0),0);
-  const el = document.getElementById('data-referencia');
-  const label = document.getElementById('data-referencia-label');
-  if(t > 0){
-    const ts = sessionStorage.getItem('fidc_ts');
-    if(ts){
-      const d = new Date(ts);
-      const data = d.toLocaleDateString('pt-BR');
-      const hora = d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-      el.textContent = `${data} às ${hora}`;
-      label.style.display = 'block';
-    } else {
-      el.textContent = `${t.toLocaleString()} registros`;
-      label.style.display = 'none';
-    }
+  const barValue = document.getElementById('update-bar-value');
+  const ts = localStorage.getItem('fidc_ts');
+  if(t > 0 && ts){
+    const d = new Date(ts);
+    const data = d.toLocaleDateString('pt-BR');
+    const hora = d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+    barValue.textContent = `${data} às ${hora}`;
+    barValue.style.color = '#ffffff';
   } else {
-    el.textContent = 'Sem dados carregados';
-    label.style.display = 'none';
+    barValue.textContent = 'Aguardando atualização pelo administrador';
+    barValue.style.color = 'rgba(255,255,255,0.5)';
   }
 }
 
