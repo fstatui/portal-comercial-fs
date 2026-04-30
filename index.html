@@ -445,13 +445,17 @@ const BLOB_ACCOUNT   = 'portalfsstatui';
 const BLOB_CONTAINER = 'portal-dados';
 const BLOB_FILE      = 'dados.json';
 const BLOB_SAS       = 'sv=2025-11-05&ss=b&srt=o&sp=rwctfx&se=2027-05-02T01:21:57Z&st=2026-04-30T17:06:57Z&spr=https&sig=DwDi%2F9b%2FWIliURbLRe3L5FKNFADRZlmyD89YLJzr3IM%3D';
-const BLOB_URL       = `https://${BLOB_ACCOUNT}.blob.core.windows.net/${BLOB_CONTAINER}/${BLOB_FILE}?${BLOB_SAS}`;
+const BLOB_BASE      = `https://${BLOB_ACCOUNT}.blob.core.windows.net/${BLOB_CONTAINER}/${BLOB_FILE}`;
+
+function blobUrl(extra){
+  return BLOB_BASE + '?' + BLOB_SAS + (extra||'');
+}
 
 async function saveData(){
   try{
     const ts = new Date().toISOString();
     const payload = JSON.stringify({ db: DB, ts });
-    const res = await fetch(BLOB_URL, {
+    const res = await fetch(blobUrl(), {
       method: 'PUT',
       headers: {
         'x-ms-blob-type': 'BlockBlob',
@@ -478,7 +482,7 @@ async function loadData(){
     // Timeout de 8 segundos para não travar o loading
     const controller = new AbortController();
     const timeout = setTimeout(()=>controller.abort(), 8000);
-    const res = await fetch(BLOB_URL + '&t=' + Date.now(), { signal: controller.signal });
+    const res = await fetch(blobUrl('&nocache=' + Date.now()), { signal: controller.signal });
     clearTimeout(timeout);
     if(res.status === 404){
       return true; // Primeiro uso — dados vazios, normal
@@ -526,6 +530,8 @@ function logout(){ window.location.href='/.auth/logout'; }
     return;
   }
   currentUser = { email, ...perfil };
+
+  // Mostra o portal IMEDIATAMENTE — sem esperar o Blob
   document.getElementById('loading-screen').style.display='none';
   document.getElementById('portal-screen').style.display='flex';
   document.getElementById('header-username').textContent=perfil.nome;
@@ -536,11 +542,11 @@ function logout(){ window.location.href='/.auth/logout'; }
     updateAdminBarInfo();
   }
 
-  // Carrega dados do Blob Storage (persistentes para todos os usuários)
+  // Carrega dados do Blob em background (não bloqueia o login)
   document.getElementById('update-bar-value').textContent = 'Carregando dados…';
-  try{ await loadData(); }catch(e){ console.warn('Erro no loadData:', e); }
-  updateDataLabel();
-  renderCurrentTab();
+  loadData()
+    .then(()=>{ updateDataLabel(); renderCurrentTab(); })
+    .catch(()=>{ updateDataLabel(); renderCurrentTab(); });
 })();
 
 // ══════════════════════════════════════════
