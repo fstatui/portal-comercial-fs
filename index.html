@@ -432,66 +432,16 @@ function saveData(){
     localStorage.setItem('fidc_db6', JSON.stringify(DB));
     localStorage.setItem('fidc_ts', new Date().toISOString());
     updateDataLabel();
-  }catch(e){ console.error('Erro ao salvar dados:', e); }
+  }catch(e){ console.error('Erro ao salvar:', e); }
 }
 function loadData(){
   try{
     const s = localStorage.getItem('fidc_db6');
     if(s) DB = JSON.parse(s);
-  }catch(e){ console.error('Erro ao carregar dados:', e); }
+  }catch(e){ console.error('Erro ao carregar:', e); }
 }
 
-// ══════════════════════════════════════════
-// SHAREPOINT — carrega CSVs automaticamente
-// ══════════════════════════════════════════
-const SP_FOLDER_ID = '01JYEMXNFRAOQG43X63FG3EWJL67BNGVDT';
-const SP_DRIVE_ID  = 'b!G88A2qMV2UWNPysCBhFEnYBcNwsczXZAuFkvdc80micaK8Cv7yv5RoBVuJJTtKm7';
 
-async function loadFromSharePoint(){
-  try{
-    // Busca token Microsoft via /.auth/me
-    const authRes = await fetch('/.auth/me');
-    const authData = await authRes.json();
-    if(!authData?.clientPrincipal) return false;
-
-    // Lista arquivos na pasta
-    const listRes = await fetch(
-      `https://graph.microsoft.com/v1.0/drives/${SP_DRIVE_ID}/items/${SP_FOLDER_ID}/children`,
-      { headers: { 'Authorization': `Bearer ${authData.clientPrincipal.accessToken}` } }
-    );
-    if(!listRes.ok) return false;
-    const listData = await listRes.json();
-    const csvFiles = (listData.value||[]).filter(f => f.name.toLowerCase().endsWith('.csv'));
-    if(!csvFiles.length) return false;
-
-    // Baixa cada CSV e processa
-    const newDB = makeEmptyDB();
-    let lastModified = null;
-    await Promise.all(csvFiles.map(async file => {
-      try{
-        const dlRes = await fetch(file['@microsoft.graph.downloadUrl']);
-        const text = await dlRes.text();
-        const rows = parseCSV(text);
-        if(!rows.length) return;
-        const {ua, tipo} = identifyFile(file.name);
-        if(ua && tipo && newDB[ua]) newDB[ua][tipo] = rows;
-        const mod = new Date(file.lastModifiedDateTime);
-        if(!lastModified || mod > lastModified) lastModified = mod;
-      }catch(e){}
-    }));
-
-    const total = UA_NAMES.reduce((a,ua)=>a+Object.values(newDB[ua]).reduce((x,y)=>x+y.length,0),0);
-    if(total === 0) return false;
-
-    DB = newDB;
-    localStorage.setItem('fidc_db6', JSON.stringify(DB));
-    if(lastModified) localStorage.setItem('fidc_ts', lastModified.toISOString());
-    return true;
-  }catch(e){
-    console.warn('SharePoint indisponível, usando cache local:', e);
-    return false;
-  }
-}
 
 // ══════════════════════════════════════════
 // AUTENTICAÇÃO
@@ -529,11 +479,8 @@ function logout(){ window.location.href='/.auth/logout'; }
     updateAdminBarInfo();
   }
 
-  // Tenta carregar do SharePoint; se falhar usa cache local
-  document.getElementById('update-bar-value').textContent = 'Carregando dados…';
-  const spOk = await loadFromSharePoint();
-  if(!spOk) loadData(); // fallback: cache localStorage
-
+  // Carrega dados do localStorage (persistem entre sessões e logoffs)
+  loadData();
   updateDataLabel();
   renderCurrentTab();
 })();
