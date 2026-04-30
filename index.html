@@ -436,70 +436,68 @@ function makeEmptyDB() {
 let DB = makeEmptyDB();
 
 // ══════════════════════════════════════════
-// PERSISTÊNCIA — localStorage (persiste entre sessões)
+// PERSISTÊNCIA — localStorage compartilhado
+// Chave fixa — dados sobrevivem entre sessões
 // ══════════════════════════════════════════
-// ══════════════════════════════════════════
-// PERSISTÊNCIA — Azure Blob Storage
-// ══════════════════════════════════════════
-const BLOB_ACCOUNT   = 'portalfsstatui';
-const BLOB_CONTAINER = 'portal-dados';
-const BLOB_FILE      = 'dados.json';
-const BLOB_SAS       = 'sv=2025-11-05&ss=b&srt=o&sp=rwctfx&se=2027-05-02T01:21:57Z&st=2026-04-30T17:06:57Z&spr=https&sig=DwDi%2F9b%2FWIliURbLRe3L5FKNFADRZlmyD89YLJzr3IM%3D';
-const BLOB_BASE      = `https://${BLOB_ACCOUNT}.blob.core.windows.net/${BLOB_CONTAINER}/${BLOB_FILE}`;
-
-function blobUrl(extra){
-  return BLOB_BASE + '?' + BLOB_SAS + (extra||'');
-}
+const STORAGE_KEY    = 'fidc_portal_dados_v1';
+const STORAGE_KEY_TS = 'fidc_portal_ts_v1';
 
 async function saveData(){
   try{
     const ts = new Date().toISOString();
     const payload = JSON.stringify({ db: DB, ts });
-    const res = await fetch(blobUrl(), {
-      method: 'PUT',
-      headers: {
-        'x-ms-blob-type': 'BlockBlob',
-        'Content-Type': 'application/json'
-      },
-      body: payload
-    });
-    if(!res.ok) throw new Error('Blob PUT falhou: ' + res.status);
-    localStorage.setItem('fidc_ts', ts);
+    // Salva no localStorage
+    localStorage.setItem(STORAGE_KEY, payload);
+    localStorage.setItem(STORAGE_KEY_TS, ts);
+    // Tenta salvar no Blob em background (sem bloquear)
+    salvarNoBlob(payload).catch(e => console.warn('Blob save falhou (não crítico):', e));
     updateDataLabel();
     return true;
   }catch(e){
-    console.error('Erro ao salvar no Blob:', e);
-    // Fallback local
-    localStorage.setItem('fidc_db6', JSON.stringify(DB));
-    localStorage.setItem('fidc_ts', new Date().toISOString());
-    updateDataLabel();
+    console.error('Erro ao salvar:', e);
     return false;
   }
 }
 
+async function salvarNoBlob(payload){
+  const BLOB_SAS = 'sv=2025-11-05&ss=b&srt=o&sp=rwctfx&se=2027-05-02T01:21:57Z&st=2026-04-30T17:06:57Z&spr=https&sig=DwDi%2F9b%2FWIliURbLRe3L5FKNFADRZlmyD89YLJzr3IM%3D';
+  const url = `https://portalfsstatui.blob.core.windows.net/portal-dados/dados.json?${BLOB_SAS}`;
+  await fetch(url, {
+    method:'PUT',
+    headers:{'x-ms-blob-type':'BlockBlob','Content-Type':'application/json'},
+    body: payload
+  });
+}
+
 async function loadData(){
+  // 1. Tenta carregar do Blob (dados atualizados pelo admin)
   try{
-    // Timeout de 8 segundos para não travar o loading
+    const BLOB_SAS = 'sv=2025-11-05&ss=b&srt=o&sp=rwctfx&se=2027-05-02T01:21:57Z&st=2026-04-30T17:06:57Z&spr=https&sig=DwDi%2F9b%2FWIliURbLRe3L5FKNFADRZlmyD89YLJzr3IM%3D';
+    const url = `https://portalfsstatui.blob.core.windows.net/portal-dados/dados.json?${BLOB_SAS}&t=${Date.now()}`;
     const controller = new AbortController();
-    const timeout = setTimeout(()=>controller.abort(), 8000);
-    const res = await fetch(blobUrl('&nocache=' + Date.now()), { signal: controller.signal });
-    clearTimeout(timeout);
-    if(res.status === 404){
-      return true; // Primeiro uso — dados vazios, normal
-    }
+    setTimeout(()=>controller.abort(), 6000);
+    const res = await fetch(url, { signal: controller.signal });
     if(res.ok){
       const payload = await res.json();
-      if(payload?.db) DB = payload.db;
-      if(payload?.ts) localStorage.setItem('fidc_ts', payload.ts);
-      return true;
+      if(payload?.db){
+        DB = payload.db;
+        if(payload.ts) localStorage.setItem(STORAGE_KEY_TS, payload.ts);
+        // Atualiza cache local com dados do Blob
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        return;
+      }
     }
-  }catch(e){ console.warn('Blob indisponível, usando cache local:', e); }
-  // Fallback localStorage
+  }catch(e){ console.warn('Blob load falhou, usando cache local:', e.message); }
+
+  // 2. Fallback: usa cache do localStorage
   try{
-    const s = localStorage.getItem('fidc_db6');
-    if(s) DB = JSON.parse(s);
+    const s = localStorage.getItem(STORAGE_KEY);
+    if(s){
+      const payload = JSON.parse(s);
+      if(payload?.db) DB = payload.db;
+      if(payload?.ts) localStorage.setItem(STORAGE_KEY_TS, payload.ts);
+    }
   }catch(e){}
-  return false;
 }
 
 
@@ -702,7 +700,7 @@ async function processFiles(){
 function updateDataLabel(){
   const t = UA_NAMES.reduce((a,ua)=>a+Object.values(DB[ua]).reduce((x,y)=>x+y.length,0),0);
   const barValue = document.getElementById('update-bar-value');
-  const ts = localStorage.getItem('fidc_ts');
+  const ts = localStorage.getItem(STORAGE_KEY_TS);
   if(t > 0 && ts){
     const d = new Date(ts);
     const data = d.toLocaleDateString('pt-BR');
